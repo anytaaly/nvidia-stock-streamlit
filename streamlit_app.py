@@ -123,7 +123,7 @@ if refresh:
                     split_date = pd.to_datetime(split_date)
                     split_date_str = split_date.strftime('%Y-%m-%d')
                     fig.add_vline(
-                        x=split_date,
+                        x=split_date.to_pydatetime(),
                         line_dash='dot',
                         line_color='purple',
                         annotation_text=f"Split {int(ratio)}:1",
