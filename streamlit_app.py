@@ -26,6 +26,18 @@ def get_us_president(date):
 st.set_page_config(page_title="NVIDIA Stock Tracker", layout="wide")
 st.title("\U0001F4C8 NVIDIA (NVDA) Stock Price Viewer")
 
+
+def get_president_image(president):
+    images = {
+        "Joe Biden": "https://upload.wikimedia.org/wikipedia/commons/6/68/Joe_Biden_presidential_portrait.jpg",
+        "Donald Trump": "https://upload.wikimedia.org/wikipedia/commons/5/56/Donald_Trump_official_portrait.jpg",
+        "Barack Obama": "https://upload.wikimedia.org/wikipedia/commons/8/8d/President_Barack_Obama.jpg",
+        "George W. Bush": "https://upload.wikimedia.org/wikipedia/commons/d/d4/George-W-Bush.jpeg",
+        "Bill Clinton": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Bill_Clinton.jpg",
+    }
+    return images.get(president, None)
+
+    
 # ----------------------
 # Sidebar Inputs
 # ----------------------
