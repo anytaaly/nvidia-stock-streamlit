@@ -42,11 +42,12 @@ st.title("\U0001F4C8 NVIDIA (NVDA) Stock Price Viewer")
 # ----------------------
 # Sidebar Inputs
 # ----------------------
-period = st.sidebar.selectbox("Select Time Period", ["1mo", "3mo", "6mo", "1y", "2y"], index=4)
+period = st.sidebar.selectbox("Select Time Period", ["1mo", "3mo", "6mo", "1y", "2y", "5y"], index=5)
 interval = st.sidebar.selectbox("Select Interval", ["1d", "1wk", "1mo"], index=0)
-refresh_rate = st.sidebar.slider("Refresh every N seconds", 0, 300, 0, step=5)
+refresh_rate = 300  # Set to refresh every 5 minutes (300 seconds)
 
 placeholder = st.empty()
+
 
 # ----------------------
 # Live Update Loop
