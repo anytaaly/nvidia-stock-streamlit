@@ -222,16 +222,16 @@ def display_data_and_charts(df, symbol, period, interval):
         marker=dict(color='red', size=10)
     ))
     
-    # Add stock splits as vertical lines
+                # Add stock splits as vertical lines
     splits = yf.Ticker(symbol).splits
     if not splits.empty:
         for split_date, ratio in splits.items():
             split_date = pd.to_datetime(split_date)
             split_date_str = split_date.strftime('%Y-%m-%d')
             
-            # Fix: Convert pandas Timestamp to Python datetime
+            # Fix: Use string representation instead of datetime object
             fig.add_vline(
-                x=split_date.to_pydatetime(),  # This is the fix
+                x=split_date_str,  # Use string format which is compatible with Plotly
                 line_dash='dot',
                 line_color='purple',
                 annotation_text=f"Split {int(ratio)}:1",
