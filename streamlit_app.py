@@ -38,13 +38,11 @@ def get_president_image(president):
 # ----------------------
 st.set_page_config(page_title="NVIDIA Stock Tracker", layout="wide")
 st.title("\U0001F4C8 NVIDIA (NVDA) Stock Price Viewer")
-st.caption("💡 Note: Historical prices are adjusted for stock splits and dividends.")
-
 
 # ----------------------
 # Sidebar Inputs
 # ----------------------
-period = st.sidebar.selectbox("Select Time Period", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "Max"], index=5)
+period = st.sidebar.selectbox("Select Time Period", ["1mo", "3mo", "6mo", "1y", "2y", "5y"], index=5)
 interval = st.sidebar.selectbox("Select Interval", ["1d", "1wk", "1mo"], index=0)
 refresh_rate = 300  # Set to refresh every 5 minutes (300 seconds)
 
@@ -99,8 +97,19 @@ while True:
                 marker=dict(color='red', size=10)
             ))
 
-            fig.update_layout(
-                title=f"NVIDIA Stock Price - Period: {period}, Interval: {interval}",
+            splits = yf.Ticker("NVDA").splits
+if not splits.empty:
+    for split_date, ratio in splits.items():
+        fig.add_vline(
+            x=split_date,
+            line_dash='dot',
+            line_color='purple',
+            annotation_text=f"Split {int(ratio)}:1",
+            annotation_position="top left"
+        )
+
+fig.update_layout(
+    title=f"NVIDIA Stock Price - Period: {period}, Interval: {interval}",
                 xaxis_title='Date',
                 yaxis_title='Price',
                 height=600
@@ -138,6 +147,28 @@ while True:
             )
 
             st.markdown(sentiment_summary)
+
+            # ----------------------
+            # Prediction Placeholder Graph
+            # ----------------------
+            st.subheader("🔮 Predicted Price Trend (Coming Soon)")
+            future_dates = pd.date_range(start=df['Date'].iloc[-1], periods=10, freq='D')
+            predicted_prices = df['Close'].iloc[-1] + pd.Series(range(10)).apply(lambda x: x * 0.5)
+
+            pred_fig = go.Figure()
+            pred_fig.add_trace(go.Scatter(
+                x=future_dates, y=predicted_prices,
+                mode='lines+markers',
+                name='Predicted Price',
+                line=dict(color='orange')
+            ))
+            pred_fig.update_layout(
+                title="Sample Future Price Projection (Linear Placeholder)",
+                xaxis_title='Date',
+                yaxis_title='Predicted Price',
+                height=400
+            )
+            st.plotly_chart(pred_fig, use_container_width=True)
 
     if refresh_rate <= 0:
         break
