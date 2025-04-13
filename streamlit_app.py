@@ -5,7 +5,7 @@ import pandas as pd
 
 st.set_page_config(page_title="NVIDIA Stock Tracker", layout="wide")
 
-st.title("📈 NVIDIA (NVDA) Stock Price Viewer")
+st.title(" NVIDIA (NVDA) Stock Price Viewer")
 
 # Sidebar options
 period = st.sidebar.selectbox("Select Time Period", ["1mo", "3mo", "6mo", "1y", "2y"], index=4)
@@ -37,5 +37,5 @@ else:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-    st.subheader("📄 Raw Data")
+    st.subheader(" Raw Data")
     st.dataframe(df.tail(10))  # Show last few rows
