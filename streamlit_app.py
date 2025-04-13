@@ -7,7 +7,9 @@ import pandas as pd
 # Helper Function
 # ----------------------
 def get_us_president(date):
-    if date >= pd.Timestamp("2021-01-20"):
+    if date >= pd.Timestamp("2025-01-20"):
+        return "Donald Trump"
+    elif date >= pd.Timestamp("2021-01-20"):
         return "Joe Biden"
     elif date >= pd.Timestamp("2017-01-20"):
         return "Donald Trump"
@@ -68,14 +70,8 @@ else:
 
     pres_max = get_us_president(max_date)
     pres_min = get_us_president(min_date)
-
-    # ----------------------
-    # Sidebar President Portrait
-    # ----------------------
-    st.sidebar.markdown("### President During Peak")
-    president_image_url = get_president_image(pres_max)
-    if president_image_url:
-        st.sidebar.image(president_image_url, width=150, caption=pres_max)
+    image_max = get_president_image(pres_max)
+    image_min = get_president_image(pres_min)
 
     # ----------------------
     # Plotting
@@ -115,8 +111,19 @@ else:
     # ----------------------
     # Display President Info
     # ----------------------
-    st.info(f"\U0001F4C8 Highest Close: {max_price:.2f} on {max_date.date()} (President: {pres_max})")
-    st.info(f"\U0001F4C9 Lowest Close: {min_price:.2f} on {min_date.date()} (President: {pres_min})")
+    cols = st.columns([1, 6])
+    with cols[0]:
+        if image_max:
+            st.image(image_max, width=70, caption="High")
+    with cols[1]:
+        st.info(f"\U0001F4C8 Highest Close: {max_price:.2f} on {max_date.date()} (President: {pres_max})")
+
+    cols = st.columns([1, 6])
+    with cols[0]:
+        if image_min:
+            st.image(image_min, width=70, caption="Low")
+    with cols[1]:
+        st.info(f"\U0001F4C9 Lowest Close: {min_price:.2f} on {min_date.date()} (President: {pres_min})")
 
     # Optional: Show Raw Data
     with st.expander("Show Raw Data"):
