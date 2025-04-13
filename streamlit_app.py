@@ -73,7 +73,7 @@ else:
     # Sidebar President Portrait
     # ----------------------
     st.sidebar.markdown("### President During Peak")
-    president_image_url = get_president_image(pres_max)  # or pres_min if you prefer
+    president_image_url = get_president_image(pres_max)
     if president_image_url:
         st.sidebar.image(president_image_url, width=150, caption=pres_max)
 
