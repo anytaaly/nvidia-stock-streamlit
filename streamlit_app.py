@@ -267,7 +267,7 @@ def display_data_and_charts(df, symbol, period, interval):
         marker=dict(color='red', size=10)
     ))
     
-                # Add stock splits as vertical lines using add_shape instead of add_vline
+    # Add stock splits as vertical lines using add_shape instead of add_vline
     splits = yf.Ticker(symbol).splits
     if not splits.empty:
         # Get the date range of the current chart
@@ -311,8 +311,8 @@ def display_data_and_charts(df, symbol, period, interval):
     # Update layout
     fig.update_layout(
         title=f"{symbol} Stock Price - Period: {period}, Interval: {interval}",
-        xaxis_title='Date',
-        yaxis_title='Price ($)',
+        xaxis_title="Date",
+        yaxis_title="Price ($)",
         height=600,
         legend=dict(
             orientation="h",
@@ -359,8 +359,8 @@ def display_data_and_charts(df, symbol, period, interval):
         
         rsi_fig.update_layout(
             title=f"{symbol} Relative Strength Index (RSI)",
-            xaxis_title='Date',
-            yaxis_title='RSI Value',
+            xaxis_title="Date",
+            yaxis_title="RSI Value",
             height=250,
             yaxis=dict(range=[0, 100])
         )
@@ -487,29 +487,11 @@ def display_data_and_charts(df, symbol, period, interval):
                 # Format the chart
                 week_fig.update_layout(
                     title=f"Weekly Price Forecast for {symbol}",
-                    xaxis_title='Day',
-                    yaxis_title='Predicted Price ($)',
+                    xaxis_title="Day",
+                    yaxis_title="Predicted Price ($)",
                     height=400,
-                    yaxis=dict(tickprefix='
-
-# Get initial data
-df = get_stock_data(symbol, period, interval)
-
-# Display data on initial load (this fixes the issue where data only showed after refresh)
-display_data_and_charts(df, symbol, period, interval)
-
-# Handle manual refresh
-if refresh:
-    st.rerun()
-
-# Handle auto-refresh
-if auto_refresh:
-    time_placeholder = st.empty()
-    time_placeholder.text(f"Auto-refreshing in {refresh_rate} seconds...")
-    time.sleep(refresh_rate)
-    st.rerun()
-),
-                    plot_bgcolor='rgba(0,0,0,0)',
+                    yaxis=dict(tickprefix="$"),
+                    plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(l=40, r=40, t=60, b=40)
                 )
                 
@@ -591,8 +573,8 @@ if auto_refresh:
                 # Format chart
                 pred_fig.update_layout(
                     title=f"Extended Price Forecast for {symbol}",
-                    xaxis_title='Date',
-                    yaxis_title='Price ($)',
+                    xaxis_title="Date",
+                    yaxis_title="Price ($)",
                     height=400,
                     legend=dict(
                         orientation="h",
@@ -601,25 +583,7 @@ if auto_refresh:
                         xanchor="right",
                         x=1
                     ),
-                    yaxis=dict(tickprefix='
-
-# Get initial data
-df = get_stock_data(symbol, period, interval)
-
-# Display data on initial load (this fixes the issue where data only showed after refresh)
-display_data_and_charts(df, symbol, period, interval)
-
-# Handle manual refresh
-if refresh:
-    st.rerun()
-
-# Handle auto-refresh
-if auto_refresh:
-    time_placeholder = st.empty()
-    time_placeholder.text(f"Auto-refreshing in {refresh_rate} seconds...")
-    time.sleep(refresh_rate)
-    st.rerun()
-),
+                    yaxis=dict(tickprefix="$"),
                     margin=dict(l=40, r=40, t=60, b=40)
                 )
                 
@@ -637,7 +601,7 @@ if auto_refresh:
 # Get initial data
 df = get_stock_data(symbol, period, interval)
 
-#C Display data on initial load (this fixes the issue where data only showed after refresh)
+# Display data on initial load (this fixes the issue where data only showed after refresh)
 display_data_and_charts(df, symbol, period, interval)
 
 # Handle manual refresh
