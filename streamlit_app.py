@@ -637,7 +637,7 @@ if auto_refresh:
 # Get initial data
 df = get_stock_data(symbol, period, interval)
 
-# Display data on initial load (this fixes the issue where data only showed after refresh)
+#C Display data on initial load (this fixes the issue where data only showed after refresh)
 display_data_and_charts(df, symbol, period, interval)
 
 # Handle manual refresh
