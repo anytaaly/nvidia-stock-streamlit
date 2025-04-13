@@ -4,7 +4,6 @@ import plotly.graph_objects as go
 import pandas as pd
 import time
 
-
 # ----------------------
 # Helper Function
 # ----------------------
@@ -50,9 +49,9 @@ refresh_rate = 300  # Set to refresh every 5 minutes (300 seconds)
 placeholder = st.empty()
 
 # ----------------------
-# Live Update Loop
+# Manual Refresh Strategy
 # ----------------------
-while True:
+if st.button("🔄 Refresh Data"):
     with placeholder.container():
         df = yf.download("NVDA", period=period, interval=interval)
 
@@ -83,7 +82,7 @@ while True:
             fig.add_trace(go.Scatter(
                 x=[max_date], y=[max_price],
                 mode='markers+text',
-                name='\U0001F4C8 High',
+                name='📈 High',
                 text=[f'High: {max_price:.2f} ({pres_max})'],
                 textposition='top center',
                 marker=dict(color='green', size=10)
@@ -92,25 +91,25 @@ while True:
             fig.add_trace(go.Scatter(
                 x=[min_date], y=[min_price],
                 mode='markers+text',
-                name='\U0001F4C9 Low',
+                name='📉 Low',
                 text=[f'Low: {min_price:.2f} ({pres_min})'],
                 textposition='bottom center',
                 marker=dict(color='red', size=10)
             ))
 
             splits = yf.Ticker("NVDA").splits
-if not splits.empty:
-    for split_date, ratio in splits.items():
-        fig.add_vline(
-            x=split_date,
-            line_dash='dot',
-            line_color='purple',
-            annotation_text=f"Split {int(ratio)}:1",
-            annotation_position="top left"
-        )
+            if not splits.empty:
+                for split_date, ratio in splits.items():
+                    fig.add_vline(
+                        x=split_date,
+                        line_dash='dot',
+                        line_color='purple',
+                        annotation_text=f"Split {int(ratio)}:1",
+                        annotation_position="top left"
+                    )
 
-fig.update_layout(
-    title=f"NVIDIA Stock Price - Period: {period}, Interval: {interval}",
+            fig.update_layout(
+                title=f"NVIDIA Stock Price - Period: {period}, Interval: {interval}",
                 xaxis_title='Date',
                 yaxis_title='Price',
                 height=600
@@ -123,14 +122,14 @@ fig.update_layout(
                 if image_max:
                     st.image(image_max, width=70, caption="High")
             with cols[1]:
-                st.info(f"\U0001F4C8 Highest Close: {max_price:.2f} on {max_date.date()} (President: {pres_max})")
+                st.info(f"📈 Highest Close: {max_price:.2f} on {max_date.date()} (President: {pres_max})")
 
             cols = st.columns([1, 6])
             with cols[0]:
                 if image_min:
                     st.image(image_min, width=70, caption="Low")
             with cols[1]:
-                st.info(f"\U0001F4C9 Lowest Close: {min_price:.2f} on {min_date.date()} (President: {pres_min})")
+                st.info(f"📉 Lowest Close: {min_price:.2f} on {min_date.date()} (President: {pres_min})")
 
             with st.expander("Show Raw Data"):
                 st.dataframe(df.tail(20))
@@ -174,7 +173,3 @@ fig.update_layout(
                 height=400
             )
             st.plotly_chart(pred_fig, use_container_width=True)
-
-    if refresh_rate <= 0:
-        break
-    time.sleep(refresh_rate)
