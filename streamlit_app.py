@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 import pandas as pd
 import time
 
+
 # ----------------------
 # Helper Function
 # ----------------------
@@ -149,23 +150,27 @@ fig.update_layout(
             st.markdown(sentiment_summary)
 
             # ----------------------
-            # Prediction Placeholder Graph
+            # Real Prediction Graph using Prophet
             # ----------------------
-            st.subheader("🔮 Predicted Price Trend (Coming Soon)")
-            future_dates = pd.date_range(start=df['Date'].iloc[-1], periods=10, freq='D')
-            predicted_prices = df['Close'].iloc[-1] + pd.Series(range(10)).apply(lambda x: x * 0.5)
+            from prophet import Prophet
+
+            st.subheader("🔮 Predicted Price Trend (Prophet Forecast)")
+
+            prophet_df = df[['Date', 'Close']].rename(columns={"Date": "ds", "Close": "y"})
+            model = Prophet(daily_seasonality=True)
+            model.fit(prophet_df)
+
+            future = model.make_future_dataframe(periods=10)
+            forecast = model.predict(future)
 
             pred_fig = go.Figure()
-            pred_fig.add_trace(go.Scatter(
-                x=future_dates, y=predicted_prices,
-                mode='lines+markers',
-                name='Predicted Price',
-                line=dict(color='orange')
-            ))
+            pred_fig.add_trace(go.Scatter(x=forecast['ds'], y=forecast['yhat'], name='Predicted Price', line=dict(color='orange')))
+            pred_fig.add_trace(go.Scatter(x=df['Date'], y=df['Close'], name='Historical Price', line=dict(color='blue')))
+
             pred_fig.update_layout(
-                title="Sample Future Price Projection (Linear Placeholder)",
+                title="Prophet-Based Future Price Forecast",
                 xaxis_title='Date',
-                yaxis_title='Predicted Price',
+                yaxis_title='Price',
                 height=400
             )
             st.plotly_chart(pred_fig, use_container_width=True)
