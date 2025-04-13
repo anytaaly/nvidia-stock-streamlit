@@ -246,7 +246,8 @@ def display_data_and_charts(df, symbol, period, interval):
         max_date = df['Date'].max()
         
         for split_date, ratio in splits.items():
-            split_date = pd.to_datetime(split_date)
+            # Convert to timezone-naive datetime for comparison
+            split_date = pd.to_datetime(split_date).tz_localize(None)
             
             # Only add split lines that are within the date range of the current view
             if min_date <= split_date <= max_date:
@@ -450,11 +451,11 @@ display_data_and_charts(df, symbol, period, interval)
 
 # Handle manual refresh
 if refresh:
-    st.experimental_rerun()
+    st.rerun()
 
 # Handle auto-refresh
 if auto_refresh:
     time_placeholder = st.empty()
     time_placeholder.text(f"Auto-refreshing in {refresh_rate} seconds...")
     time.sleep(refresh_rate)
-    st.experimental_rerun()
+    st.rerun()
