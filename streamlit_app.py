@@ -49,9 +49,29 @@ refresh_rate = 300  # Set to refresh every 5 minutes (300 seconds)
 placeholder = st.empty()
 
 # ----------------------
-# Manual Refresh Strategy
+# Initial Load: Pull all data on first run
 # ----------------------
-if st.button("🔄 Refresh Data"):
+df = yf.download("NVDA", period=period, interval=interval)
+
+# ----------------------
+# Manual Refresh Strategy with Styled Button
+# ----------------------
+st.markdown("""
+    <style>
+    .stButton > button {
+        background-color: #8e2de2;
+        color: white;
+        border-radius: 999px;
+        height: 3em;
+        width: 12em;
+        font-weight: bold;
+        border: none;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+refresh = st.button("🔁 Refresh Data")
+if refresh:
     with placeholder.container():
         df = yf.download("NVDA", period=period, interval=interval)
 
@@ -101,6 +121,7 @@ if st.button("🔄 Refresh Data"):
             if not splits.empty:
                 for split_date, ratio in splits.items():
                     split_date = pd.to_datetime(split_date)
+                    split_date_str = split_date.strftime('%Y-%m-%d')
                     fig.add_vline(
                         x=split_date,
                         line_dash='dot',
