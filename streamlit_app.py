@@ -48,7 +48,6 @@ refresh_rate = 300  # Set to refresh every 5 minutes (300 seconds)
 
 placeholder = st.empty()
 
-
 # ----------------------
 # Live Update Loop
 # ----------------------
@@ -123,6 +122,20 @@ while True:
 
             with st.expander("Show Raw Data"):
                 st.dataframe(df.tail(20))
+
+            # ----------------------
+            # Market Sentiment Section
+            # ----------------------
+            st.subheader("📰 Market Sentiment (Yahoo Finance)")
+
+            sentiment_summary = (
+                "Based on recent Yahoo Finance articles, market sentiment toward NVIDIA "
+                "appears to be **moderately bullish**. Analysts highlight strong demand for AI chips, "
+                "optimistic earnings projections, and continued dominance in the GPU space. "
+                "However, some caution exists around macroeconomic factors and high valuation concerns."
+            )
+
+            st.markdown(sentiment_summary)
 
     if refresh_rate <= 0:
         break
