@@ -100,6 +100,7 @@ if st.button("🔄 Refresh Data"):
             splits = yf.Ticker("NVDA").splits
             if not splits.empty:
                 for split_date, ratio in splits.items():
+                    split_date = pd.to_datetime(split_date)
                     fig.add_vline(
                         x=split_date,
                         line_dash='dot',
