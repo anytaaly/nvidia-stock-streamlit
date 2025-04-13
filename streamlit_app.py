@@ -121,33 +121,38 @@ st.markdown("""
         padding-top: 2rem;
     }
     /* Icon styling */
-    .icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        height: 1.5rem;
-        width: 1.5rem;
-        margin-right: 0.5rem;
-    }
     .icon-title {
-        font-size: 1.5rem;
-        margin-right: 0.75rem;
+        display: inline-block;
+        vertical-align: middle;
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
     }
     .icon-header {
-        font-size: 1.2rem;
-        margin-right: 0.5rem;
+        display: inline-block;
+        vertical-align: middle;
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+    }
+    .header-flex {
+        display: flex;
+        align-items: center;
+    }
+    .header-flex svg {
+        margin-right: 8px;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # Title with professional icon
 st.markdown("""
-    <h1>
-        <svg class="icon-title" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <div class="header-flex">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
         </svg>
-        NVIDIA (NVDA) Stock Price Viewer
-    </h1>
+        <h1 style="margin-top: 0; margin-bottom: 0;">NVIDIA (NVDA) Stock Price Viewer</h1>
+    </div>
     """, unsafe_allow_html=True)
 
 # ----------------------
@@ -375,12 +380,12 @@ def display_data_and_charts(df, symbol, period, interval):
     # Market Sentiment Section
     # ----------------------
     st.markdown("""
-    <h3>
-        <svg class="icon-header" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <div class="header-flex">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
         </svg>
-        Market Sentiment (Yahoo Finance)
-    </h3>
+        <h3 style="margin-top: 0; margin-bottom: 0;">Market Sentiment (Yahoo Finance)</h3>
+    </div>
     """, unsafe_allow_html=True)
     
     sentiment_summary = (
@@ -396,12 +401,12 @@ def display_data_and_charts(df, symbol, period, interval):
     # Prophet Prediction Section
     # ----------------------
     st.markdown("""
-    <h3>
-        <svg class="icon-header" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <div class="header-flex">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
         </svg>
-        Stock Price Predictions
-    </h3>
+        <h3 style="margin-top: 0; margin-bottom: 0;">Stock Price Predictions</h3>
+    </div>
     """, unsafe_allow_html=True)
     
     prediction_tabs = st.tabs(["Next Week Forecast", "Long-term Forecast"])
@@ -504,15 +509,15 @@ def display_data_and_charts(df, symbol, period, interval):
                 pct_change = (price_change / first_pred) * 100
                 
                 trend_color = "green" if price_change >= 0 else "red"
-                trend_icon = """
-                <svg width="16" height="16" fill="none" stroke="{0}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                trend_icon = f"""
+                <svg width="16" height="16" fill="none" stroke="{trend_color}" viewBox="0 0 24 24" style="vertical-align: text-bottom; margin-right: 4px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>
-                """.format(trend_color) if price_change >= 0 else """
-                <svg width="16" height="16" fill="none" stroke="{0}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                """ if price_change >= 0 else f"""
+                <svg width="16" height="16" fill="none" stroke="{trend_color}" viewBox="0 0 24 24" style="vertical-align: text-bottom; margin-right: 4px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"></path>
                 </svg>
-                """.format(trend_color)
+                """
                 
                 st.markdown(f"""
                 <div style='background-color: rgba(0, 0, 0, 0.05); padding: 15px; border-radius: 5px; margin-top: 20px;'>
