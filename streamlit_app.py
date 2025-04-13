@@ -20,13 +20,6 @@ def get_us_president(date):
     else:
         return "Unknown"
 
-# ----------------------
-# Streamlit App Config
-# ----------------------
-st.set_page_config(page_title="NVIDIA Stock Tracker", layout="wide")
-st.title("\U0001F4C8 NVIDIA (NVDA) Stock Price Viewer")
-
-
 def get_president_image(president):
     images = {
         "Joe Biden": "https://upload.wikimedia.org/wikipedia/commons/6/68/Joe_Biden_presidential_portrait.jpg",
@@ -37,17 +30,18 @@ def get_president_image(president):
     }
     return images.get(president, None)
 
+# ----------------------
+# Streamlit App Config
+# ----------------------
+st.set_page_config(page_title="NVIDIA Stock Tracker", layout="wide")
+st.title("\U0001F4C8 NVIDIA (NVDA) Stock Price Viewer")
 
 # ----------------------
 # Sidebar Inputs
 # ----------------------
 period = st.sidebar.selectbox("Select Time Period", ["1mo", "3mo", "6mo", "1y", "2y"], index=4)
 interval = st.sidebar.selectbox("Select Interval", ["1d", "1wk", "1mo"], index=0)
-st.sidebar.markdown("### President During Peak")
-president_image_url = get_president_image(pres_max)  # or pres_min if you prefer
-if president_image_url:
-    st.sidebar.image(president_image_url, width=150, caption=pres_max)
-    
+
 # ----------------------
 # Download and Prepare Data
 # ----------------------
@@ -74,6 +68,14 @@ else:
 
     pres_max = get_us_president(max_date)
     pres_min = get_us_president(min_date)
+
+    # ----------------------
+    # Sidebar President Portrait
+    # ----------------------
+    st.sidebar.markdown("### President During Peak")
+    president_image_url = get_president_image(pres_max)  # or pres_min if you prefer
+    if president_image_url:
+        st.sidebar.image(president_image_url, width=150, caption=pres_max)
 
     # ----------------------
     # Plotting
