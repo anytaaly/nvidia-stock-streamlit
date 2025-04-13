@@ -359,7 +359,9 @@ def display_data_and_charts(df, symbol, period, interval):
     # ----------------------
     # Prophet Prediction Section
     # ----------------------
-    st.subheader("🔮 Predicted Price Trend (Prophet Forecast)")
+    st.subheader("🔮 Stock Price Predictions")
+    
+    prediction_tabs = st.tabs(["Next Week Forecast", "Long-term Forecast"])
     
     try:
         from prophet import Prophet
@@ -372,72 +374,210 @@ def display_data_and_charts(df, symbol, period, interval):
             model = Prophet(daily_seasonality=True)
             model.fit(prophet_df)
             
-            # Create future dataframe
-            future_days = 30 if interval == '1d' else 10
-            future = model.make_future_dataframe(periods=future_days)
-            
-            # Make prediction
-            forecast = model.predict(future)
-            
-            # Create prediction chart
-            pred_fig = go.Figure()
-            
-            # Add historical price
-            pred_fig.add_trace(go.Scatter(
-                x=df['Date'], 
-                y=df['Close'], 
-                name='Historical Price', 
-                line=dict(color='blue', width=2)
-            ))
-            
-            # Add predicted price
-            pred_fig.add_trace(go.Scatter(
-                x=forecast['ds'], 
-                y=forecast['yhat'], 
-                name='Predicted Price', 
-                line=dict(color='orange', width=2)
-            ))
-            
-            # Add confidence interval
-            pred_fig.add_trace(go.Scatter(
-                x=forecast['ds'],
-                y=forecast['yhat_upper'],
-                fill=None,
-                mode='lines',
-                line=dict(color='rgba(255, 165, 0, 0.2)', width=0),
-                name='Upper Bound'
-            ))
-            
-            pred_fig.add_trace(go.Scatter(
-                x=forecast['ds'],
-                y=forecast['yhat_lower'],
-                fill='tonexty',
-                mode='lines',
-                line=dict(color='rgba(255, 165, 0, 0.2)', width=0),
-                name='Lower Bound'
-            ))
-            
-            # Format chart
-            pred_fig.update_layout(
-                title=f"Prophet-Based Future Price Forecast for {symbol}",
-                xaxis_title='Date',
-                yaxis_title='Price',
-                height=400,
-                legend=dict(
-                    orientation="h",
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="right",
-                    x=1
+            # WEEKLY FORECAST TAB
+            with prediction_tabs[0]:
+                # Create future dataframe for 7 days
+                future_week = model.make_future_dataframe(periods=7)
+                
+                # Make prediction
+                forecast_week = model.predict(future_week)
+                
+                # Get only the future dates (next 7 days)
+                last_date = prophet_df['ds'].max()
+                future_only = forecast_week[forecast_week['ds'] > last_date]
+                
+                # Create a table for the weekly forecast
+                week_data = future_only[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].copy()
+                week_data.columns = ['Date', 'Predicted Price', 'Lower Bound', 'Upper Bound']
+                
+                # Format the date and price columns
+                week_data['Date'] = week_data['Date'].dt.strftime('%A, %b %d')
+                week_data['Predicted Price'] = week_data['Predicted Price'].round(2)
+                week_data['Lower Bound'] = week_data['Lower Bound'].round(2)
+                week_data['Upper Bound'] = week_data['Upper Bound'].round(2)
+                
+                # Style the weekly forecast table
+                st.markdown("""
+                <style>
+                .weekly-forecast {
+                    font-family: Arial, sans-serif;
+                    margin-bottom: 20px;
+                }
+                .weekly-forecast th {
+                    background-color: #f0f2f6;
+                    font-weight: bold;
+                    text-align: center;
+                }
+                .weekly-forecast td {
+                    text-align: center;
+                }
+                </style>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("### Next 7 Days Price Forecast")
+                st.dataframe(week_data, use_container_width=True, 
+                             column_config={
+                                "Date": st.column_config.TextColumn("Date"),
+                                "Predicted Price": st.column_config.NumberColumn("Predicted Price", format="$%.2f"),
+                                "Lower Bound": st.column_config.NumberColumn("Lower Bound (95%)", format="$%.2f"),
+                                "Upper Bound": st.column_config.NumberColumn("Upper Bound (95%)", format="$%.2f")
+                             })
+                
+                # Create a bar chart for the weekly forecast
+                week_fig = go.Figure()
+                
+                # Add predicted price bars
+                week_fig.add_trace(go.Bar(
+                    x=week_data['Date'],
+                    y=week_data['Predicted Price'],
+                    name='Predicted Price',
+                    marker_color='rgb(55, 83, 109)',
+                    error_y=dict(
+                        type='data',
+                        symmetric=False,
+                        array=week_data['Upper Bound'] - week_data['Predicted Price'],
+                        arrayminus=week_data['Predicted Price'] - week_data['Lower Bound'],
+                        color='rgba(55, 83, 109, 0.6)'
+                    )
+                ))
+                
+                # Format the chart
+                week_fig.update_layout(
+                    title=f"Weekly Price Forecast for {symbol}",
+                    xaxis_title='Day',
+                    yaxis_title='Predicted Price ($)',
+                    height=400,
+                    yaxis=dict(tickprefix='
+
+# Get initial data
+df = get_stock_data(symbol, period, interval)
+
+# Display data on initial load (this fixes the issue where data only showed after refresh)
+display_data_and_charts(df, symbol, period, interval)
+
+# Handle manual refresh
+if refresh:
+    st.rerun()
+
+# Handle auto-refresh
+if auto_refresh:
+    time_placeholder = st.empty()
+    time_placeholder.text(f"Auto-refreshing in {refresh_rate} seconds...")
+    time.sleep(refresh_rate)
+    st.rerun()
+),
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    margin=dict(l=40, r=40, t=60, b=40)
                 )
-            )
+                
+                st.plotly_chart(week_fig, use_container_width=True)
+                
+                # Display trend information
+                first_pred = week_data.iloc[0]['Predicted Price']
+                last_pred = week_data.iloc[-1]['Predicted Price']
+                price_change = last_pred - first_pred
+                pct_change = (price_change / first_pred) * 100
+                
+                trend_color = "green" if price_change >= 0 else "red"
+                trend_icon = "📈" if price_change >= 0 else "📉"
+                
+                st.markdown(f"""
+                <div style='background-color: rgba(0, 0, 0, 0.05); padding: 15px; border-radius: 5px; margin-top: 20px;'>
+                    <h4 style='margin-top: 0;'>Weekly Trend {trend_icon}</h4>
+                    <p>Forecasted <span style='color: {trend_color}; font-weight: bold;'>{trend_icon} {abs(pct_change):.2f}%</span> 
+                    {' increase' if price_change >= 0 else ' decrease'} over the next 7 days.</p>
+                    <p>Starting at <b>${first_pred:.2f}</b> and ending at <b>${last_pred:.2f}</b></p>
+                </div>
+                """, unsafe_allow_html=True)
             
-            st.plotly_chart(pred_fig, use_container_width=True)
-            
-            # Show prediction components
-            with st.expander("Show Prediction Components"):
-                components_fig = model.plot_components(forecast)
-                st.pyplot(components_fig)
+            # LONG-TERM FORECAST TAB
+            with prediction_tabs[1]:
+                # Create future dataframe for longer period
+                future_period = 30 if interval == '1d' else 10
+                future = model.make_future_dataframe(periods=future_period)
+                
+                # Make prediction
+                forecast = model.predict(future)
+                
+                # Create prediction chart
+                pred_fig = go.Figure()
+                
+                # Add historical price
+                pred_fig.add_trace(go.Scatter(
+                    x=df['Date'], 
+                    y=df['Close'], 
+                    name='Historical Price', 
+                    line=dict(color='blue', width=2)
+                ))
+                
+                # Add predicted price
+                pred_fig.add_trace(go.Scatter(
+                    x=forecast['ds'], 
+                    y=forecast['yhat'], 
+                    name='Predicted Price', 
+                    line=dict(color='orange', width=2)
+                ))
+                
+                # Add confidence interval
+                pred_fig.add_trace(go.Scatter(
+                    x=forecast['ds'],
+                    y=forecast['yhat_upper'],
+                    fill=None,
+                    mode='lines',
+                    line=dict(color='rgba(255, 165, 0, 0.2)', width=0),
+                    name='Upper Bound'
+                ))
+                
+                pred_fig.add_trace(go.Scatter(
+                    x=forecast['ds'],
+                    y=forecast['yhat_lower'],
+                    fill='tonexty',
+                    mode='lines',
+                    line=dict(color='rgba(255, 165, 0, 0.2)', width=0),
+                    name='Lower Bound'
+                ))
+                
+                # Format chart
+                pred_fig.update_layout(
+                    title=f"Extended Price Forecast for {symbol}",
+                    xaxis_title='Date',
+                    yaxis_title='Price ($)',
+                    height=400,
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1
+                    ),
+                    yaxis=dict(tickprefix='
+
+# Get initial data
+df = get_stock_data(symbol, period, interval)
+
+# Display data on initial load (this fixes the issue where data only showed after refresh)
+display_data_and_charts(df, symbol, period, interval)
+
+# Handle manual refresh
+if refresh:
+    st.rerun()
+
+# Handle auto-refresh
+if auto_refresh:
+    time_placeholder = st.empty()
+    time_placeholder.text(f"Auto-refreshing in {refresh_rate} seconds...")
+    time.sleep(refresh_rate)
+    st.rerun()
+),
+                    margin=dict(l=40, r=40, t=60, b=40)
+                )
+                
+                st.plotly_chart(pred_fig, use_container_width=True)
+                
+                # Show prediction components
+                with st.expander("Show Prediction Components"):
+                    components_fig = model.plot_components(forecast)
+                    st.pyplot(components_fig)
                 
     except Exception as e:
         st.warning(f"Unable to generate prediction: {str(e)}")
