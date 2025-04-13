@@ -93,7 +93,37 @@ def get_key_stats(ticker_symbol):
 # Streamlit App Config
 # ----------------------
 st.set_page_config(page_title="NVIDIA Stock Tracker", layout="wide")
-st.title("\U0001F4C8 NVIDIA (NVDA) Stock Price Viewer")
+
+# Custom fonts and styling
+st.markdown("""
+    <style>
+    .main {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Arial', sans-serif;
+        font-weight: 600;
+    }
+    .stButton > button {
+        background-color: #8e2de2;
+        color: white;
+        border-radius: 999px;
+        height: 3em;
+        width: 12em;
+        font-weight: bold;
+        border: none;
+        font-family: 'Arial', sans-serif;
+    }
+    .css-1vq4p4l {  /* This affects the sidebar */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .block-container {
+        padding-top: 2rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+st.title("📊 NVIDIA (NVDA) Stock Price Viewer")
 
 # ----------------------
 # Sidebar Inputs
@@ -130,21 +160,7 @@ if show_indicators:
 # ----------------------
 # Manual Refresh Strategy with Styled Button
 # ----------------------
-st.markdown("""
-    <style>
-    .stButton > button {
-        background-color: #8e2de2;
-        color: white;
-        border-radius: 999px;
-        height: 3em;
-        width: 12em;
-        font-weight: bold;
-        border: none;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-refresh = st.button("🔁 Refresh Data")
+refresh = st.button("🔄 Refresh Data", key="refresh_button")
 
 # Function to display data and charts
 def display_data_and_charts(df, symbol, period, interval):
@@ -225,36 +241,42 @@ def display_data_and_charts(df, symbol, period, interval):
                 # Add stock splits as vertical lines using add_shape instead of add_vline
     splits = yf.Ticker(symbol).splits
     if not splits.empty:
+        # Get the date range of the current chart
+        min_date = df['Date'].min()
+        max_date = df['Date'].max()
+        
         for split_date, ratio in splits.items():
             split_date = pd.to_datetime(split_date)
             
-            # Use add_shape to create a vertical line instead of add_vline
-            fig.add_shape(
-                type="line",
-                x0=split_date,
-                x1=split_date,
-                y0=0,
-                y1=1,
-                yref="paper",  # Use paper coordinates for y-axis (0 to 1)
-                line=dict(
-                    color="purple",
-                    width=1,
-                    dash="dot",
+            # Only add split lines that are within the date range of the current view
+            if min_date <= split_date <= max_date:
+                # Use add_shape to create a vertical line
+                fig.add_shape(
+                    type="line",
+                    x0=split_date,
+                    x1=split_date,
+                    y0=0,
+                    y1=1,
+                    yref="paper",  # Use paper coordinates for y-axis (0 to 1)
+                    line=dict(
+                        color="purple",
+                        width=1,
+                        dash="dot",
+                    )
                 )
-            )
-            
-            # Add text annotation for the split
-            fig.add_annotation(
-                x=split_date,
-                y=1.05,
-                yref="paper",
-                text=f"Split {int(ratio)}:1",
-                showarrow=False,
-                font=dict(
-                    color="purple",
-                    size=10
+                
+                # Add text annotation for the split
+                fig.add_annotation(
+                    x=split_date,
+                    y=1.05,
+                    yref="paper",
+                    text=f"Split {int(ratio)}:1",
+                    showarrow=False,
+                    font=dict(
+                        color="purple",
+                        size=10
+                    )
                 )
-            )
     
     # Update layout
     fig.update_layout(
